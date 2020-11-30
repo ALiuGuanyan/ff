@@ -5,10 +5,10 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/ALiuGuanyan/pflag"
+	"github.com/peterbourgon/ff/v3"
 	"strings"
 	"text/tabwriter"
-
-	"github.com/peterbourgon/ff/v3"
 )
 
 // Command combines a main function with a flag.FlagSet, and zero or more
@@ -52,7 +52,7 @@ type Command struct {
 	// FlagSet associated with this command. Optional, but if none is provided,
 	// an empty FlagSet will be defined and attached during the parse phase, so
 	// that the -h flag works as expected.
-	FlagSet *flag.FlagSet
+	FlagSet *pflag.FlagSet
 
 	// Options provided to ff.Parse when parsing arguments for this command.
 	// Optional.
@@ -93,7 +93,7 @@ func (c *Command) Parse(args []string) error {
 	}
 
 	if c.FlagSet == nil {
-		c.FlagSet = flag.NewFlagSet(c.Name, flag.ExitOnError)
+		c.FlagSet = pflag.NewFlagSet(c.Name, pflag.ExitOnError)
 	}
 
 	if c.UsageFunc == nil {
@@ -225,7 +225,7 @@ func DefaultUsageFunc(c *Command) string {
 	if countFlags(c.FlagSet) > 0 {
 		fmt.Fprintf(&b, "FLAGS\n")
 		tw := tabwriter.NewWriter(&b, 0, 2, 2, ' ', 0)
-		c.FlagSet.VisitAll(func(f *flag.Flag) {
+		c.FlagSet.VisitAll(func(f *pflag.Flag) {
 			def := f.DefValue
 			if def == "" {
 				def = "..."
@@ -239,7 +239,7 @@ func DefaultUsageFunc(c *Command) string {
 	return strings.TrimSpace(b.String())
 }
 
-func countFlags(fs *flag.FlagSet) (n int) {
-	fs.VisitAll(func(*flag.Flag) { n++ })
+func countFlags(fs *pflag.FlagSet) (n int) {
+	fs.VisitAll(func(*pflag.Flag) { n++ })
 	return n
 }

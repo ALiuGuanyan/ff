@@ -2,8 +2,8 @@ package ff
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
+	"github.com/ALiuGuanyan/pflag"
 	"io"
 	"os"
 	"strings"
@@ -12,7 +12,7 @@ import (
 // Parse the flags in the flag set from the provided (presumably commandline)
 // args. Additional options may be provided to parse from a config file and/or
 // environment variables in that priority order.
-func Parse(fs *flag.FlagSet, args []string, options ...Option) error {
+func Parse(fs *pflag.FlagSet, args []string, options ...Option) error {
 	var c Context
 	for _, option := range options {
 		option(&c)
@@ -24,14 +24,14 @@ func Parse(fs *flag.FlagSet, args []string, options ...Option) error {
 	}
 
 	provided := map[string]bool{}
-	fs.Visit(func(f *flag.Flag) {
+	fs.Visit(func(f *pflag.Flag) {
 		provided[f.Name] = true
 	})
 
 	// Second priority: environment variables (session).
 	if parseEnv := c.envVarPrefix != "" || c.envVarNoPrefix; parseEnv {
 		var visitErr error
-		fs.VisitAll(func(f *flag.Flag) {
+		fs.VisitAll(func(f *pflag.Flag) {
 			if visitErr != nil {
 				return
 			}
@@ -62,7 +62,7 @@ func Parse(fs *flag.FlagSet, args []string, options ...Option) error {
 		}
 	}
 
-	fs.Visit(func(f *flag.Flag) {
+	fs.Visit(func(f *pflag.Flag) {
 		provided[f.Name] = true
 	})
 
@@ -113,7 +113,7 @@ func Parse(fs *flag.FlagSet, args []string, options ...Option) error {
 		}
 	}
 
-	fs.Visit(func(f *flag.Flag) {
+	fs.Visit(func(f *pflag.Flag) {
 		provided[f.Name] = true
 	})
 

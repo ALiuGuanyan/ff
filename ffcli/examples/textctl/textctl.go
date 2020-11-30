@@ -4,9 +4,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"os"
-
+	"github.com/ALiuGuanyan/pflag"
 	"github.com/peterbourgon/ff/v3/ffcli"
+	"os"
 )
 
 // textctl is a simple applications in which all commands are built up in func
@@ -16,9 +16,9 @@ import (
 
 func main() {
 	var (
-		rootFlagSet   = flag.NewFlagSet("textctl", flag.ExitOnError)
+		rootFlagSet   = pflag.NewFlagSet("textctl", pflag.ExitOnError)
 		verbose       = rootFlagSet.Bool("v", false, "increase log verbosity")
-		repeatFlagSet = flag.NewFlagSet("textctl repeat", flag.ExitOnError)
+		repeatFlagSet = pflag.NewFlagSet("textctl repeat", pflag.ExitOnError)
 		n             = repeatFlagSet.Int("n", 3, "how many times to repeat")
 	)
 
