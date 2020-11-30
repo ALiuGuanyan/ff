@@ -1,8 +1,8 @@
-s:
+str:
   - a
   - b
   - c
-x:
+string-slice:
   - d
   - e
   - f

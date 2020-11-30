@@ -1,5 +1,5 @@
-s: hello
-i: 10
-b: true
-d: 5s
-f: 3.14
+str: hello
+int: 10
+bool: true
+duration: 5s
+float: 3.14

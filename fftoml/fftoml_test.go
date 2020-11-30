@@ -28,12 +28,12 @@ func TestParser(t *testing.T) {
 			name: "basic KV pairs",
 			file: "testdata/basic.toml",
 			want: fftest.Vars{
-				S: "s",
-				I: 10,
-				F: 3.14e10,
-				B: true,
-				D: 5 * time.Second,
-				X: []string{"1", "a", "👍"},
+				Str: "s",
+				Int: 10,
+				Float: 3.14e10,
+				Bool: true,
+				Duration: 5 * time.Second,
+				Slice: []string{"1", "a", "👍"},
 			},
 		},
 		{

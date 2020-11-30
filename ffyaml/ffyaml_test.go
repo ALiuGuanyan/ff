@@ -25,7 +25,7 @@ func TestParser(t *testing.T) {
 		{
 			name: "basic KV pairs",
 			file: "testdata/basic.yaml",
-			want: fftest.Vars{S: "hello", I: 10, B: true, D: 5 * time.Second, F: 3.14},
+			want: fftest.Vars{Str: "hello", Int: 10, Bool: true, Duration: 5 * time.Second, Float: 3.14},
 		},
 		{
 			name: "invalid prefix",
@@ -40,22 +40,22 @@ func TestParser(t *testing.T) {
 		{
 			name: "basic arrays",
 			file: "testdata/basic_array.yaml",
-			want: fftest.Vars{S: "c", X: []string{"a", "b", "c"}},
+			want: fftest.Vars{Str: "c", Slice: []string{"a", "b", "c"}},
 		},
 		{
 			name: "multiline arrays",
 			file: "testdata/multi_line_array.yaml",
-			want: fftest.Vars{S: "c", X: []string{"d", "e", "f"}},
+			want: fftest.Vars{Str: "c", Slice: []string{"d", "e", "f"}},
 		},
 		{
 			name: "line break arrays",
 			file: "testdata/line_break_array.yaml",
-			want: fftest.Vars{X: []string{"first string", "second string", "third"}},
+			want: fftest.Vars{Slice: []string{"first string", "second string", "third"}},
 		},
 		{
 			name: "unquoted strings in arrays",
 			file: "testdata/unquoted_string_array.yaml",
-			want: fftest.Vars{X: []string{"one", "two", "three"}},
+			want: fftest.Vars{Slice: []string{"one", "two", "three"}},
 		},
 	} {
 		t.Run(testcase.name, func(t *testing.T) {

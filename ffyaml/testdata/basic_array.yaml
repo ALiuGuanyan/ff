@@ -1,2 +1,2 @@
-s: ['a', 'b', 'c']
-x: ['a', 'b', 'c']
+str: ['a', 'b', 'c']
+string-slice: ['a', 'b', 'c']

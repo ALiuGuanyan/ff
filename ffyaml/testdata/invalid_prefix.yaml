@@ -1,2 +1,2 @@
-	i: 123
-s: foo
+	int: 123
+str: foo
