@@ -1,9 +1,0 @@
-# github.com/ALiuGuanyan/pflag v1.0.6
-## explicit
-github.com/ALiuGuanyan/pflag
-# github.com/pelletier/go-toml v1.6.0
-## explicit
-github.com/pelletier/go-toml
-# gopkg.in/yaml.v2 v2.2.4
-## explicit
-gopkg.in/yaml.v2
