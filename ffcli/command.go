@@ -131,8 +131,8 @@ func (c *Command) Parse(args []string) error {
 				}
 				c.selected = sub
 
-				if c.Exec == nil {
-					return NoExecError{Command: c}
+				if sub.Exec == nil {
+					return NoExecError{Command: sub}
 				}
 				return nil
 			}
