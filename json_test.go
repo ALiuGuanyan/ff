@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/peterbourgon/ff/v3"
-	"github.com/peterbourgon/ff/v3/fftest"
+	"github.com/ALiuGuanyan/ff/v3"
+	"github.com/ALiuGuanyan/ff/v3/fftest"
 )
 
 func TestJSONParser(t *testing.T) {
@@ -28,13 +28,13 @@ func TestJSONParser(t *testing.T) {
 			name: "basic KV pairs",
 			args: []string{},
 			file: "testdata/basic.json",
-			want: fftest.Vars{S: "s", I: 10, B: true, D: 5 * time.Second},
+			want: fftest.Vars{Str: "str", Int: 10, Bool: true, Duration: 5 * time.Second},
 		},
 		{
 			name: "value arrays",
 			args: []string{},
 			file: "testdata/value_arrays.json",
-			want: fftest.Vars{S: "bb", I: 12, B: true, D: 5 * time.Second, X: []string{"a", "B", "👍"}},
+			want: fftest.Vars{Str: "bb", Int: 12, Bool: true, Duration: 5 * time.Second, Slice: []string{"a", "B", "👍"}},
 		},
 		{
 			name: "bad JSON file",

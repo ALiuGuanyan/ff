@@ -3,12 +3,12 @@ package deletecmd
 import (
 	"context"
 	"errors"
-	"flag"
 	"fmt"
+	"github.com/ALiuGuanyan/pflag"
 	"io"
 
-	"github.com/peterbourgon/ff/v3/ffcli"
-	"github.com/peterbourgon/ff/v3/ffcli/examples/objectctl/pkg/rootcmd"
+	"github.com/ALiuGuanyan/ff/v3/ffcli"
+	"github.com/ALiuGuanyan/ff/v3/ffcli/examples/objectctl/pkg/rootcmd"
 )
 
 // Config for the delete subcommand, including a reference to the API client.
@@ -25,7 +25,7 @@ func New(rootConfig *rootcmd.Config, out io.Writer) *ffcli.Command {
 		out:        out,
 	}
 
-	fs := flag.NewFlagSet("objectctl delete", flag.ExitOnError)
+	fs := pflag.NewFlagSet("objectctl delete", pflag.ExitOnError)
 	rootConfig.RegisterFlags(fs)
 
 	return &ffcli.Command{

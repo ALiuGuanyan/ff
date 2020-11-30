@@ -5,8 +5,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/ALiuGuanyan/ff/v3"
 	"github.com/ALiuGuanyan/pflag"
-	"github.com/peterbourgon/ff/v3"
 	"strings"
 	"text/tabwriter"
 )
@@ -226,11 +226,11 @@ func DefaultUsageFunc(c *Command) string {
 		fmt.Fprintf(&b, "FLAGS\n")
 		tw := tabwriter.NewWriter(&b, 0, 2, 2, ' ', 0)
 		c.FlagSet.VisitAll(func(f *pflag.Flag) {
-			def := f.DefValue
-			if def == "" {
-				def = "..."
+			if strings.Contains(f.Name, "zzzzzz") {
+				_, _ = fmt.Fprintf(tw, "\n\n")
+			} else {
+				_, _ = fmt.Fprintf(tw, "\t--%s \t%s\n", f.Name, f.Usage)
 			}
-			fmt.Fprintf(tw, "  -%s %s\t%s\n", f.Name, def, f.Usage)
 		})
 		tw.Flush()
 		fmt.Fprintf(&b, "\n")

@@ -3,13 +3,13 @@ package createcmd
 import (
 	"context"
 	"errors"
-	"flag"
 	"fmt"
+	"github.com/ALiuGuanyan/pflag"
 	"io"
 	"strings"
 
-	"github.com/peterbourgon/ff/v3/ffcli"
-	"github.com/peterbourgon/ff/v3/ffcli/examples/objectctl/pkg/rootcmd"
+	"github.com/ALiuGuanyan/ff/v3/ffcli"
+	"github.com/ALiuGuanyan/ff/v3/ffcli/examples/objectctl/pkg/rootcmd"
 )
 
 // Config for the create subcommand, including a reference to the API client.
@@ -26,7 +26,7 @@ func New(rootConfig *rootcmd.Config, out io.Writer) *ffcli.Command {
 		out:        out,
 	}
 
-	fs := flag.NewFlagSet("objectctl create", flag.ExitOnError)
+	fs := pflag.NewFlagSet("objectctl create", pflag.ExitOnError)
 	fs.BoolVar(&cfg.overwrite, "overwrite", false, "overwrite existing object, if it exists")
 	rootConfig.RegisterFlags(fs)
 

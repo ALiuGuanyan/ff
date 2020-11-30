@@ -1,14 +1,14 @@
 package fftoml_test
 
 import (
-	"flag"
+	"github.com/ALiuGuanyan/pflag"
 	"reflect"
 	"testing"
 	"time"
 
-	"github.com/peterbourgon/ff/v3"
-	"github.com/peterbourgon/ff/v3/fftest"
-	"github.com/peterbourgon/ff/v3/fftoml"
+	"github.com/ALiuGuanyan/ff/v3"
+	"github.com/ALiuGuanyan/ff/v3/fftest"
+	"github.com/ALiuGuanyan/ff/v3/fftoml"
 )
 
 func TestParser(t *testing.T) {
@@ -61,13 +61,13 @@ func TestParser_WithTables(t *testing.T) {
 	type fields struct {
 		String  string
 		Float   float64
-		Strings fftest.StringSlice
+		Strings []string
 	}
 
 	expected := fields{
 		String:  "a string",
 		Float:   1.23,
-		Strings: fftest.StringSlice{"one", "two", "three"},
+		Strings: []string{"one", "two", "three"},
 	}
 
 	for _, testcase := range []struct {
@@ -95,12 +95,12 @@ func TestParser_WithTables(t *testing.T) {
 		t.Run(testcase.name, func(t *testing.T) {
 			var (
 				found fields
-				fs    = flag.NewFlagSet("fftest", flag.ContinueOnError)
+				fs    = pflag.NewFlagSet("fftest", pflag.ContinueOnError)
 			)
 
 			fs.StringVar(&found.String, testcase.stringKey, "", "string")
 			fs.Float64Var(&found.Float, testcase.floatKey, 0, "float64")
-			fs.Var(&found.Strings, testcase.stringsKey, "string slice")
+			fs.StringSliceVar(&found.Strings, testcase.stringsKey, []string{}, "string slice")
 
 			if err := ff.Parse(fs, []string{},
 				ff.WithConfigFile("testdata/table.toml"),

@@ -3,9 +3,10 @@ package rootcmd
 import (
 	"context"
 	"flag"
+	"github.com/ALiuGuanyan/pflag"
 
-	"github.com/peterbourgon/ff/v3/ffcli"
-	"github.com/peterbourgon/ff/v3/ffcli/examples/objectctl/pkg/objectapi"
+	"github.com/ALiuGuanyan/ff/v3/ffcli"
+	"github.com/ALiuGuanyan/ff/v3/ffcli/examples/objectctl/pkg/objectapi"
 )
 
 // Config for the root command, including flags and types that should be
@@ -23,7 +24,7 @@ type Config struct {
 func New() (*ffcli.Command, *Config) {
 	var cfg Config
 
-	fs := flag.NewFlagSet("objectctl", flag.ExitOnError)
+	fs := pflag.NewFlagSet("objectctl", pflag.ExitOnError)
 	cfg.RegisterFlags(fs)
 
 	return &ffcli.Command{
@@ -38,7 +39,7 @@ func New() (*ffcli.Command, *Config) {
 // helper function allows subcommands to register the root flags into their
 // flagsets, creating "global" flags that can be passed after any subcommand at
 // the commandline.
-func (c *Config) RegisterFlags(fs *flag.FlagSet) {
+func (c *Config) RegisterFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&c.Token, "token", "", "secret token for object API")
 	fs.BoolVar(&c.Verbose, "v", false, "log verbose output")
 }

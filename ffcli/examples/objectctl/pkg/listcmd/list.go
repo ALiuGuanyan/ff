@@ -2,14 +2,14 @@ package listcmd
 
 import (
 	"context"
-	"flag"
 	"fmt"
+	"github.com/ALiuGuanyan/pflag"
 	"io"
 	"text/tabwriter"
 	"time"
 
-	"github.com/peterbourgon/ff/v3/ffcli"
-	"github.com/peterbourgon/ff/v3/ffcli/examples/objectctl/pkg/rootcmd"
+	"github.com/ALiuGuanyan/ff/v3/ffcli"
+	"github.com/ALiuGuanyan/ff/v3/ffcli/examples/objectctl/pkg/rootcmd"
 )
 
 // Config for the list subcommand, including a reference
@@ -27,7 +27,7 @@ func New(rootConfig *rootcmd.Config, out io.Writer) *ffcli.Command {
 		out:        out,
 	}
 
-	fs := flag.NewFlagSet("objectctl list", flag.ExitOnError)
+	fs := pflag.NewFlagSet("objectctl list", pflag.ExitOnError)
 	fs.BoolVar(&cfg.withAccessTimes, "a", false, "include last access time of each object")
 	rootConfig.RegisterFlags(fs)
 

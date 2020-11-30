@@ -2,14 +2,13 @@ package ff_test
 
 import (
 	"context"
-	"flag"
+	"github.com/ALiuGuanyan/ff/v3"
+	"github.com/ALiuGuanyan/ff/v3/ffcli"
+	"github.com/ALiuGuanyan/ff/v3/fftest"
+	"github.com/ALiuGuanyan/pflag"
 	"os"
 	"testing"
 	"time"
-
-	"github.com/peterbourgon/ff/v3"
-	"github.com/peterbourgon/ff/v3/ffcli"
-	"github.com/peterbourgon/ff/v3/fftest"
 )
 
 func TestParseBasics(t *testing.T) {
@@ -31,99 +30,99 @@ func TestParseBasics(t *testing.T) {
 		{
 			name: "args only",
 			args: []string{"-s", "foo", "-i", "123", "-b", "-d", "24m"},
-			want: fftest.Vars{S: "foo", I: 123, B: true, D: 24 * time.Minute},
+			want: fftest.Vars{Str: "foo", Int: 123, Bool: true, Duration: 24 * time.Minute},
 		},
 		{
 			name: "file only",
 			file: "testdata/1.conf",
-			want: fftest.Vars{S: "bar", I: 99, B: true, D: time.Hour},
+			want: fftest.Vars{Str: "bar", Int: 99, Bool: true, Duration: time.Hour},
 		},
 		{
 			name: "env only",
-			env:  map[string]string{"TEST_PARSE_S": "baz", "TEST_PARSE_F": "0.99", "TEST_PARSE_D": "100s"},
+			env:  map[string]string{"TEST_PARSE_STR": "baz", "TEST_PARSE_FLOAT": "0.99", "TEST_PARSE_DURATION": "100s"},
 			opts: []ff.Option{ff.WithEnvVarPrefix("TEST_PARSE")},
-			want: fftest.Vars{S: "baz", F: 0.99, D: 100 * time.Second},
+			want: fftest.Vars{Str: "baz", Float: 0.99, Duration: 100 * time.Second},
 		},
 		{
 			name: "file args",
 			file: "testdata/2.conf",
 			args: []string{"-s", "foo", "-i", "1234"},
-			want: fftest.Vars{S: "foo", I: 1234, D: 3 * time.Second},
+			want: fftest.Vars{Str: "foo", Int: 1234, Duration: 3 * time.Second},
 		},
 		{
 			name: "env args",
-			env:  map[string]string{"TEST_PARSE_S": "should be overridden", "TEST_PARSE_B": "true"},
+			env:  map[string]string{"TEST_PARSE_STR": "should be overridden", "TEST_PARSE_BOOL": "true"},
 			args: []string{"-s", "explicit wins", "-i", "7"},
 			opts: []ff.Option{ff.WithEnvVarPrefix("TEST_PARSE")},
-			want: fftest.Vars{S: "explicit wins", I: 7, B: true},
+			want: fftest.Vars{Str: "explicit wins", Int: 7, Bool: true},
 		},
 		{
 			name: "file env",
-			env:  map[string]string{"TEST_PARSE_S": "env takes priority", "TEST_PARSE_B": "true"},
+			env:  map[string]string{"TEST_PARSE_STR": "env takes priority", "TEST_PARSE_BOOL": "true"},
 			file: "testdata/3.conf",
 			opts: []ff.Option{ff.WithEnvVarPrefix("TEST_PARSE")},
-			want: fftest.Vars{S: "env takes priority", I: 99, B: true, D: 34 * time.Second},
+			want: fftest.Vars{Str: "env takes priority", Int: 99, Bool: true, Duration: 34 * time.Second},
 		},
 		{
 			name: "file env args",
 			file: "testdata/4.conf",
-			env:  map[string]string{"TEST_PARSE_S": "from env", "TEST_PARSE_I": "300", "TEST_PARSE_F": "0.15", "TEST_PARSE_B": "true"},
+			env:  map[string]string{"TEST_PARSE_STR": "from env", "TEST_PARSE_INT": "300", "TEST_PARSE_FLOAT": "0.15", "TEST_PARSE_BOOL": "true"},
 			args: []string{"-s", "from arg", "-i", "100"},
 			opts: []ff.Option{ff.WithEnvVarPrefix("TEST_PARSE")},
-			want: fftest.Vars{S: "from arg", I: 100, F: 0.15, B: true, D: time.Minute},
+			want: fftest.Vars{Str: "from arg", Int: 100, Float: 0.15, Bool: true, Duration: time.Minute},
 		},
 		{
 			name: "repeated args",
 			args: []string{"-s", "foo", "-s", "bar", "-d", "1m", "-d", "1h", "-x", "1", "-x", "2", "-x", "3"},
-			want: fftest.Vars{S: "bar", D: time.Hour, X: []string{"1", "2", "3"}},
+			want: fftest.Vars{Str: "bar", Duration: time.Hour, Slice: []string{"1", "2", "3"}},
 		},
 		{
 			name: "priority repeats",
-			env:  map[string]string{"TEST_PARSE_S": "s.env", "TEST_PARSE_X": "x.env.1"},
+			env:  map[string]string{"TEST_PARSE_STR": "s.env", "TEST_PARSE_STRING_SLICE": "x.env.1"},
 			file: "testdata/5.conf",
 			args: []string{"-s", "s.arg.1", "-s", "s.arg.2", "-x", "x.arg.1", "-x", "x.arg.2"},
 			opts: []ff.Option{ff.WithEnvVarPrefix("TEST_PARSE")},
-			want: fftest.Vars{S: "s.arg.2", X: []string{"x.arg.1", "x.arg.2"}}, // highest prio wins and no others are called
+			want: fftest.Vars{Str: "s.arg.2", Slice: []string{"x.arg.1", "x.arg.2"}}, // highest prio wins and no others are called
 		},
 		{
 			name: "PlainParser solo bool",
 			file: "testdata/solo_bool.conf",
-			want: fftest.Vars{S: "x", B: true},
+			want: fftest.Vars{Str: "x", Bool: true},
 		},
 		{
 			name: "PlainParser string with spaces",
 			file: "testdata/spaces.conf",
-			want: fftest.Vars{S: "i am the very model of a modern major general"},
+			want: fftest.Vars{Str: "i am the very model of a modern major general"},
 		},
 		{
 			name: "default comma behavior",
-			env:  map[string]string{"TEST_PARSE_S": "one,two,three", "TEST_PARSE_X": "one,two,three"},
+			env:  map[string]string{"TEST_PARSE_STR": "one,two,three", "TEST_PARSE_STRING_SLICE": "one,two,three"},
 			opts: []ff.Option{ff.WithEnvVarPrefix("TEST_PARSE")},
-			want: fftest.Vars{S: "one,two,three", X: []string{"one,two,three"}},
+			want: fftest.Vars{Str: "one,two,three", Slice: []string{"one","two","three"}},
 		},
 		{
 			name: "WithEnvVarSplit",
-			env:  map[string]string{"TEST_PARSE_S": "one,two,three", "TEST_PARSE_X": "one,two,three"},
+			env:  map[string]string{"TEST_PARSE_STR": "one,two,three", "TEST_PARSE_STRING_SLICE": "one,two,three"},
 			opts: []ff.Option{ff.WithEnvVarPrefix("TEST_PARSE"), ff.WithEnvVarSplit(",")},
-			want: fftest.Vars{S: "three", X: []string{"one", "two", "three"}},
+			want: fftest.Vars{Str: "three", Slice: []string{"one", "two", "three"}},
 		},
 		{
 			name: "WithEnvVarNoPrefix",
-			env:  map[string]string{"TEST_PARSE_S": "foo", "S": "bar"},
+			env:  map[string]string{"TEST_PARSE_STR": "foo", "STR": "bar"},
 			opts: []ff.Option{ff.WithEnvVarNoPrefix()},
-			want: fftest.Vars{S: "bar"},
+			want: fftest.Vars{Str: "bar"},
 		},
 		{
 			name: "WithIgnoreUndefined env",
-			env:  map[string]string{"TEST_PARSE_UNDEFINED": "one", "TEST_PARSE_S": "one"},
+			env:  map[string]string{"TEST_PARSE_UNDEFINED": "one", "TEST_PARSE_STR": "one"},
 			opts: []ff.Option{ff.WithEnvVarPrefix("TEST_PARSE"), ff.WithIgnoreUndefined(true)},
-			want: fftest.Vars{S: "one"},
+			want: fftest.Vars{Str: "one"},
 		},
 		{
 			name: "WithIgnoreUndefined file true",
 			file: "testdata/undefined.conf",
 			opts: []ff.Option{ff.WithIgnoreUndefined(true)},
-			want: fftest.Vars{S: "one"},
+			want: fftest.Vars{Str: "one"},
 		},
 		{
 			name: "WithIgnoreUndefined file false",
@@ -133,9 +132,9 @@ func TestParseBasics(t *testing.T) {
 		},
 		{
 			name: "env var split comma whitespace",
-			env:  map[string]string{"TEST_PARSE_S": "one, two, three ", "TEST_PARSE_X": "one, two, three "},
+			env:  map[string]string{"TEST_PARSE_STR": "one, two, three ", "TEST_PARSE_STRING_SLICE": "one, two, three "},
 			opts: []ff.Option{ff.WithEnvVarPrefix("TEST_PARSE"), ff.WithEnvVarSplit(",")},
-			want: fftest.Vars{S: " three ", X: []string{"one", " two", " three "}},
+			want: fftest.Vars{Str: " three ", Slice: []string{"one", " two", " three "}},
 		},
 	} {
 		t.Run(testcase.name, func(t *testing.T) {
@@ -146,7 +145,10 @@ func TestParseBasics(t *testing.T) {
 			if len(testcase.env) > 0 {
 				for k, v := range testcase.env {
 					defer os.Setenv(k, os.Getenv(k))
-					os.Setenv(k, v)
+					err := os.Setenv(k, v)
+					if err != nil {
+						t.Error(err)
+					}
 				}
 			}
 
@@ -203,7 +205,7 @@ func TestParseIssue16(t *testing.T) {
 				ff.WithConfigFileParser(ff.PlainParser),
 			)
 
-			want := fftest.Vars{S: testcase.want}
+			want := fftest.Vars{Str: testcase.want}
 			if err := fftest.Compare(&want, vars); err != nil {
 				t.Fatal(err)
 			}
@@ -262,13 +264,13 @@ func TestParseConfigFileVia(t *testing.T) {
 	t.Parallel()
 
 	var (
-		rootFS = flag.NewFlagSet("root", flag.ContinueOnError)
-		config = rootFS.String("config-file", "", "")
-		i      = rootFS.Int("i", 0, "")
-		s      = rootFS.String("s", "", "")
-		subFS  = flag.NewFlagSet("subcommand", flag.ContinueOnError)
-		d      = subFS.Duration("d", time.Second, "")
-		b      = subFS.Bool("b", false, "")
+		rootFS = pflag.NewFlagSet("root", pflag.ContinueOnError)
+		config = rootFS.StringP("config-file", "c", "", "")
+		i      = rootFS.IntP("int", "i",0, "")
+		s      = rootFS.StringP("str", "s","", "")
+		subFS  = pflag.NewFlagSet("subcommand", pflag.ContinueOnError)
+		d      = subFS.DurationP("duration","d", time.Second, "")
+		b      = subFS.BoolP("bool", "b", false, "")
 	)
 
 	subCommand := &ffcli.Command{
@@ -294,7 +296,7 @@ func TestParseConfigFileVia(t *testing.T) {
 		Subcommands: []*ffcli.Command{subCommand},
 	}
 
-	err := root.ParseAndRun(context.Background(), []string{"-config-file", "testdata/1.conf", "subcommand", "-b"})
+	err := root.ParseAndRun(context.Background(), []string{"--config-file", "testdata/1.conf", "subcommand"})
 	if err != nil {
 		t.Fatal(err)
 	}

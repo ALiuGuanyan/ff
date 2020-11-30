@@ -44,7 +44,7 @@ func Parse(fs *pflag.FlagSet, args []string, options ...Option) error {
 			key = strings.ToUpper(f.Name)
 			key = envVarReplacer.Replace(key)
 			key = maybePrefix(key, c.envVarNoPrefix, c.envVarPrefix)
-
+			fmt.Println(key)
 			value := os.Getenv(key)
 			if value == "" {
 				return
@@ -93,6 +93,7 @@ func Parse(fs *pflag.FlagSet, args []string, options ...Option) error {
 				case !defined && c.ignoreUndefined:
 					return nil
 				case !defined && !c.ignoreUndefined:
+					fmt.Println(configFile, name)
 					return fmt.Errorf("config file flag %q not defined in flag set", name)
 				}
 

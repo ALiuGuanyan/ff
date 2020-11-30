@@ -2,9 +2,8 @@ package fftest
 
 import (
 	"errors"
-	"flag"
 	"fmt"
-	"reflect"
+	"github.com/ALiuGuanyan/pflag"
 	"strings"
 	"time"
 )
@@ -13,28 +12,28 @@ import (
 // have been registered into it. Tests can call parse on the flag set with a
 // variety of flags, config files, and env vars, and check the resulting effect
 // on the vars.
-func Pair() (*flag.FlagSet, *Vars) {
-	fs := flag.NewFlagSet("fftest", flag.ContinueOnError)
+func Pair() (*pflag.FlagSet, *Vars) {
+	fs := pflag.NewFlagSet("fftest", pflag.ContinueOnError)
 
 	var v Vars
-	fs.StringVar(&v.S, "s", "", "string")
-	fs.IntVar(&v.I, "i", 0, "int")
-	fs.Float64Var(&v.F, "f", 0., "float64")
-	fs.BoolVar(&v.B, "b", false, "bool")
-	fs.DurationVar(&v.D, "d", 0*time.Second, "time.Duration")
-	fs.Var(&v.X, "x", "collection of strings (repeatable)")
+	fs.StringVarP(&v.Str, "str", "s","", "string")
+	fs.IntVarP(&v.Int, "int","i", 0, "int")
+	fs.Float64VarP(&v.Float, "float","f", 0., "float64")
+	fs.BoolVarP(&v.Bool, "bool", "b",false, "bool")
+	fs.DurationVarP(&v.Duration, "duration","d", 0*time.Second, "time.Duration")
+	fs.StringSliceVarP(&v.Slice, "string-slice", "x", []string{},"collection of strings (repeatable)")
 
 	return fs, &v
 }
 
 // Vars are a common set of variables used for testing.
 type Vars struct {
-	S string
-	I int
-	F float64
-	B bool
-	D time.Duration
-	X StringSlice
+	Str string
+	Int int
+	Float float64
+	Bool bool
+	Duration time.Duration
+	Slice []string
 
 	// ParseError should be assigned as the result of Parse in tests.
 	ParseError error
@@ -77,43 +76,29 @@ func Compare(want, have *Vars) error {
 		return nil
 	}
 
-	if want.S != have.S {
-		return fmt.Errorf("var S: want %q, have %q", want.S, have.S)
+	if want.Str != have.Str {
+		return fmt.Errorf("var S: want %q, have %q", want.Str, have.Str)
 	}
-	if want.I != have.I {
-		return fmt.Errorf("var I: want %d, have %d", want.I, have.I)
+	if want.Int != have.Int {
+		return fmt.Errorf("var I: want %d, have %d", want.Int, have.Int)
 	}
-	if want.F != have.F {
-		return fmt.Errorf("var F: want %f, have %f", want.F, have.F)
+	if want.Float != have.Float {
+		return fmt.Errorf("var F: want %f, have %f", want.Float, have.Float)
 	}
-	if want.B != have.B {
-		return fmt.Errorf("var B: want %v, have %v", want.B, have.B)
+	if want.Bool != have.Bool {
+		return fmt.Errorf("var Bool: want %v, have %v", want.Bool, have.Bool)
 	}
-	if want.D != have.D {
-		return fmt.Errorf("var D: want %s, have %s", want.D, have.D)
+	if want.Duration != have.Duration {
+		return fmt.Errorf("var Duration: want %s, have %s", want.Duration, have.Duration)
 	}
-	if !reflect.DeepEqual(want.X, have.X) {
-		return fmt.Errorf("var X: want %v, have %v", want.X, have.X)
+
+	for i := 0; i < len(want.Slice); i++ {
+		if want.Slice[i] != have.Slice[i] {
+			return fmt.Errorf("var X: want %v, have %v", want.Slice, have.Slice)
+		}
 	}
+
 
 	return nil
 }
 
-// StringSlice is a flag.Value that collects each Set string
-// into a slice, allowing for repeated flags.
-type StringSlice []string
-
-// Set implements flag.Value and appends the string to the slice.
-func (ss *StringSlice) Set(s string) error {
-	(*ss) = append(*ss, s)
-	return nil
-}
-
-// String implements flag.Value and returns the list of
-// strings, or "..." if no strings have been added.
-func (ss *StringSlice) String() string {
-	if len(*ss) <= 0 {
-		return "..."
-	}
-	return strings.Join(*ss, ", ")
-}
