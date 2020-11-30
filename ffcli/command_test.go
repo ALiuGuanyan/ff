@@ -6,6 +6,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/ALiuGuanyan/pflag"
 	"io/ioutil"
 	"log"
 	"reflect"
@@ -13,8 +14,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/peterbourgon/ff/v3/ffcli"
-	"github.com/peterbourgon/ff/v3/fftest"
+	"github.com/ALiuGuanyan/ff/v3/ffcli"
+	"github.com/ALiuGuanyan/ff/v3/fftest"
 )
 
 func TestCommandRun(t *testing.T) {
@@ -40,7 +41,7 @@ func TestCommandRun(t *testing.T) {
 		{
 			name:     "root flags",
 			args:     []string{"-s", "123", "-b"},
-			rootvars: fftest.Vars{S: "123", B: true},
+			rootvars: fftest.Vars{Str: "123", Bool: true},
 			rootran:  true,
 		},
 		{
@@ -52,14 +53,14 @@ func TestCommandRun(t *testing.T) {
 		{
 			name:     "root flags args",
 			args:     []string{"-i=123", "hello world"},
-			rootvars: fftest.Vars{I: 123},
+			rootvars: fftest.Vars{Int: 123},
 			rootran:  true,
 			rootargs: []string{"hello world"},
 		},
 		{
 			name:     "root flags -- args",
 			args:     []string{"-f", "1.23", "--", "hello", "world"},
-			rootvars: fftest.Vars{F: 1.23},
+			rootvars: fftest.Vars{Float: 1.23},
 			rootran:  true,
 			rootargs: []string{"hello", "world"},
 		},
@@ -71,28 +72,28 @@ func TestCommandRun(t *testing.T) {
 		{
 			name:     "root flags foo",
 			args:     []string{"-s", "OK", "-d", "10m", "foo"},
-			rootvars: fftest.Vars{S: "OK", D: 10 * time.Minute},
+			rootvars: fftest.Vars{Str: "OK", Duration: 10 * time.Minute},
 			fooran:   true,
 		},
 		{
 			name:     "root flags foo flags",
 			args:     []string{"-s", "OK", "-d", "10m", "foo", "-s", "Yup"},
-			rootvars: fftest.Vars{S: "OK", D: 10 * time.Minute},
-			foovars:  fftest.Vars{S: "Yup"},
+			rootvars: fftest.Vars{Str: "OK", Duration: 10 * time.Minute},
+			foovars:  fftest.Vars{Str: "Yup"},
 			fooran:   true,
 		},
 		{
 			name:     "root flags foo flags args",
 			args:     []string{"-f=0.99", "foo", "-f", "1.01", "verb", "noun", "adjective adjective"},
-			rootvars: fftest.Vars{F: 0.99},
-			foovars:  fftest.Vars{F: 1.01},
+			rootvars: fftest.Vars{Float: 0.99},
+			foovars:  fftest.Vars{Float: 1.01},
 			fooran:   true,
 			fooargs:  []string{"verb", "noun", "adjective adjective"},
 		},
 		{
 			name:     "root flags foo args",
 			args:     []string{"-f=0.99", "foo", "abc", "def", "ghi"},
-			rootvars: fftest.Vars{F: 0.99},
+			rootvars: fftest.Vars{Float: 0.99},
 			fooran:   true,
 			fooargs:  []string{"abc", "def", "ghi"},
 		},
@@ -176,7 +177,7 @@ func TestHelpUsage(t *testing.T) {
 		{
 			name:      "ErrHelp",
 			usageFunc: func(*ffcli.Command) string { return "👹" },
-			exec:      func(context.Context, []string) error { return flag.ErrHelp },
+			exec:      func(context.Context, []string) error { return pflag.ErrHelp },
 			output:    "👹\n",
 		},
 	} {
@@ -214,19 +215,19 @@ func TestNestedOutput(t *testing.T) {
 		{
 			name:       "root without args",
 			args:       []string{},
-			wantErr:    flag.ErrHelp,
+			wantErr:    pflag.ErrHelp,
 			wantOutput: "root usage func\n",
 		},
 		{
 			name:       "root with args",
 			args:       []string{"abc", "def ghi"},
-			wantErr:    flag.ErrHelp,
+			wantErr:    pflag.ErrHelp,
 			wantOutput: "root usage func\n",
 		},
 		{
 			name:       "root help",
 			args:       []string{"-h"},
-			wantErr:    flag.ErrHelp,
+			wantErr:    pflag.ErrHelp,
 			wantOutput: "root usage func\n",
 		},
 		{
@@ -242,33 +243,33 @@ func TestNestedOutput(t *testing.T) {
 		{
 			name:       "foo help",
 			args:       []string{"foo", "-h"},
-			wantErr:    flag.ErrHelp,
+			wantErr:    pflag.ErrHelp,
 			wantOutput: "foo usage func\n", // only one instance of usage string
 		},
 		{
 			name:       "foo bar without args",
 			args:       []string{"foo", "bar"},
-			wantErr:    flag.ErrHelp,
+			wantErr:    pflag.ErrHelp,
 			wantOutput: "bar usage func\n",
 		},
 		{
 			name:       "foo bar with args",
 			args:       []string{"foo", "bar", "--", "baz quux"},
-			wantErr:    flag.ErrHelp,
+			wantErr:    pflag.ErrHelp,
 			wantOutput: "bar usage func\n",
 		},
 		{
 			name:       "foo bar help",
 			args:       []string{"foo", "bar", "--help"},
-			wantErr:    flag.ErrHelp,
+			wantErr:    pflag.ErrHelp,
 			wantOutput: "bar usage func\n",
 		},
 	} {
 		t.Run(testcase.name, func(t *testing.T) {
 			var (
-				rootfs = flag.NewFlagSet("root", flag.ContinueOnError)
-				foofs  = flag.NewFlagSet("foo", flag.ContinueOnError)
-				barfs  = flag.NewFlagSet("bar", flag.ContinueOnError)
+				rootfs = pflag.NewFlagSet("root", pflag.ContinueOnError)
+				foofs  = pflag.NewFlagSet("foo", pflag.ContinueOnError)
+				barfs  = pflag.NewFlagSet("bar", pflag.ContinueOnError)
 				buf    bytes.Buffer
 			)
 			rootfs.SetOutput(&buf)
@@ -276,7 +277,7 @@ func TestNestedOutput(t *testing.T) {
 			barfs.SetOutput(&buf)
 
 			barExec := func(_ context.Context, args []string) error {
-				return flag.ErrHelp
+				return pflag.ErrHelp
 			}
 
 			bar := &ffcli.Command{
@@ -300,7 +301,7 @@ func TestNestedOutput(t *testing.T) {
 			}
 
 			rootExec := func(_ context.Context, args []string) error {
-				return flag.ErrHelp
+				return pflag.ErrHelp
 			}
 
 			root := &ffcli.Command{
@@ -340,7 +341,7 @@ func TestIssue57(t *testing.T) {
 		},
 		{
 			args:       []string{"-h"},
-			parseErrIs: flag.ErrHelp,
+			parseErrIs: pflag.ErrHelp,
 			runErrIs:   ffcli.ErrUnparsed,
 		},
 		{
@@ -350,12 +351,12 @@ func TestIssue57(t *testing.T) {
 		},
 		{
 			args:       []string{"bar", "-h"},
-			parseErrAs: flag.ErrHelp,
+			parseErrAs: pflag.ErrHelp,
 			runErrAs:   ffcli.ErrUnparsed,
 		},
 		{
-			args:        []string{"bar", "-undefined"},
-			parseErrStr: "error parsing commandline args: flag provided but not defined: -undefined",
+			args:        []string{"bar", "--undefined"},
+			parseErrStr: "error parsing commandline args: unknown flag: --undefined",
 			runErrIs:    ffcli.ErrUnparsed,
 		},
 		{
@@ -363,17 +364,17 @@ func TestIssue57(t *testing.T) {
 		},
 		{
 			args:       []string{"bar", "baz", "-h"},
-			parseErrIs: flag.ErrHelp,
+			parseErrIs: pflag.ErrHelp,
 			runErrIs:   ffcli.ErrUnparsed,
 		},
 		{
-			args:        []string{"bar", "baz", "-also.undefined"},
-			parseErrStr: "error parsing commandline args: flag provided but not defined: -also.undefined",
+			args:        []string{"bar", "baz", "--also.undefined"},
+			parseErrStr: "error parsing commandline args: unknown flag: --also.undefined",
 			runErrIs:    ffcli.ErrUnparsed,
 		},
 	} {
 		t.Run(strings.Join(append([]string{"foo"}, testcase.args...), " "), func(t *testing.T) {
-			fs := flag.NewFlagSet("·", flag.ContinueOnError)
+			fs := pflag.NewFlagSet("·", pflag.ContinueOnError)
 			fs.SetOutput(ioutil.Discard)
 
 			var (
@@ -455,7 +456,7 @@ func ExampleCommand_Parse_then_Run() {
 
 	// We define the token in the root command's FlagSet.
 	var (
-		rootFlagSet = flag.NewFlagSet("mycommand", flag.ExitOnError)
+		rootFlagSet = pflag.NewFlagSet("mycommand", pflag.ExitOnError)
 		token       = rootFlagSet.String("token", "", "API token")
 	)
 
@@ -543,10 +544,10 @@ USAGE
 Some long help.
 
 FLAGS
-  -b false  bool
-  -d 0s     time.Duration
-  -f 0      float64
-  -i 0      int
-  -s ...    string
-  -x ...    collection of strings (repeatable)
+  --bool    bool
+  --duration    time.Duration
+  --float    float64
+  --int    int
+  --str    string
+  --string-slice    collection of strings (repeatable)
 `) + "\n"

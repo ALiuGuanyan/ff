@@ -26,8 +26,8 @@ func New(rootConfig *rootcmd.Config, out io.Writer) *ffcli.Command {
 		out:        out,
 	}
 
-	fs := pflag.NewFlagSet("objectctl create", pflag.ExitOnError)
-	fs.BoolVar(&cfg.overwrite, "overwrite", false, "overwrite existing object, if it exists")
+	fs := pflag.NewFlagSet("create", pflag.ExitOnError)
+	fs.BoolVarP(&cfg.overwrite, "overwrite", "o",false, "overwrite existing object, if it exists")
 	rootConfig.RegisterFlags(fs)
 
 	return &ffcli.Command{

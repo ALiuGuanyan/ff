@@ -296,7 +296,7 @@ func TestParseConfigFileVia(t *testing.T) {
 		Subcommands: []*ffcli.Command{subCommand},
 	}
 
-	err := root.ParseAndRun(context.Background(), []string{"--config-file", "testdata/1.conf", "subcommand"})
+	err := root.ParseAndRun(context.Background(), []string{"--config-file", "testdata/1.conf", "subcommand", "-b"})
 	if err != nil {
 		t.Fatal(err)
 	}

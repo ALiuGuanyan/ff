@@ -61,6 +61,8 @@ type Command struct {
 	// Subcommands accessible underneath (i.e. after) this command. Optional.
 	Subcommands []*Command
 
+	subcommands map[string]*Command
+
 	// Hidden is used to make command invisible.
 	Hidden bool
 
@@ -107,19 +109,41 @@ func (c *Command) Parse(args []string) error {
 		fmt.Fprintln(c.FlagSet.Output(), c.UsageFunc(c))
 	}
 
+	numOfSubcommands := len(c.Subcommands)
+	if numOfSubcommands > 0 {
+		c.subcommands = make(map[string]*Command, numOfSubcommands)
+		for _, subcommand := range c.Subcommands {
+			c.subcommands[subcommand.Name] = subcommand
+		}
+
+		for index, arg := range args {
+			sub, ok := c.subcommands[arg]
+			if ok {
+				if err := ff.Parse(c.FlagSet, args[:index], c.Options...); err != nil {
+					return err
+				}
+
+				c.args = c.FlagSet.Args()
+
+				err := sub.Parse(args[index + 1:])
+				if err != nil {
+					return err
+				}
+				c.selected = sub
+
+				if c.Exec == nil {
+					return NoExecError{Command: c}
+				}
+				return nil
+			}
+		}
+	}
+
 	if err := ff.Parse(c.FlagSet, args, c.Options...); err != nil {
 		return err
 	}
 
 	c.args = c.FlagSet.Args()
-	if len(c.args) > 0 {
-		for _, subcommand := range c.Subcommands {
-			if strings.EqualFold(c.args[0], subcommand.Name) {
-				c.selected = subcommand
-				return subcommand.Parse(c.args[1:])
-			}
-		}
-	}
 
 	c.selected = c
 
@@ -176,10 +200,6 @@ func (c *Command) ParseAndRun(ctx context.Context, args []string) error {
 	return nil
 }
 
-//
-//
-//
-
 // ErrUnparsed is returned by Run if Parse hasn't been called first.
 var ErrUnparsed = errors.New("command tree is unparsed, can't run")
 
@@ -194,9 +214,6 @@ func (e NoExecError) Error() string {
 	return fmt.Sprintf("terminal command (%s) doesn't define an Exec function", e.Command.Name)
 }
 
-//
-//
-//
 
 // DefaultUsageFunc is the default UsageFunc used for all commands
 // if no custom UsageFunc is provided.

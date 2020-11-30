@@ -44,7 +44,6 @@ func Parse(fs *pflag.FlagSet, args []string, options ...Option) error {
 			key = strings.ToUpper(f.Name)
 			key = envVarReplacer.Replace(key)
 			key = maybePrefix(key, c.envVarNoPrefix, c.envVarPrefix)
-			fmt.Println(key)
 			value := os.Getenv(key)
 			if value == "" {
 				return

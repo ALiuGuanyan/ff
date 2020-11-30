@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"os"
 
@@ -27,7 +28,7 @@ func main() {
 		deleteCommand,
 		listCommand,
 	}
-
+	flag.Parse()
 	if err := rootCommand.Parse(os.Args[1:]); err != nil {
 		fmt.Fprintf(os.Stderr, "error during Parse: %v\n", err)
 		os.Exit(1)

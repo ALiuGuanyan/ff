@@ -28,7 +28,7 @@ func TestJSONParser(t *testing.T) {
 			name: "basic KV pairs",
 			args: []string{},
 			file: "testdata/basic.json",
-			want: fftest.Vars{Str: "str", Int: 10, Bool: true, Duration: 5 * time.Second},
+			want: fftest.Vars{Str: "s", Int: 10, Bool: true, Duration: 5 * time.Second},
 		},
 		{
 			name: "value arrays",

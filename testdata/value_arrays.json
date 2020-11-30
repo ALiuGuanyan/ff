@@ -3,5 +3,5 @@
     "int":["10","11","12"],
     "bool": [ false, true ],
     "duration": ["10m", "5s"],
-    "slice": ["a" , "B", "👍"]
+    "string-slice": ["a" , "B", "👍"]
 }
