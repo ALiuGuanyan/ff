@@ -61,6 +61,9 @@ type Command struct {
 	// Subcommands accessible underneath (i.e. after) this command. Optional.
 	Subcommands []*Command
 
+	// Hidden is used to make command invisible.
+	Hidden bool
+
 	// A successful Parse populates these unexported fields.
 	selected *Command // the command itself (if terminal) or a subcommand
 	args     []string // args that should be passed to Run, if any
@@ -212,11 +215,21 @@ func DefaultUsageFunc(c *Command) string {
 		fmt.Fprintf(&b, "%s\n\n", c.LongHelp)
 	}
 
-	if len(c.Subcommands) > 0 {
+	hasVisibleSubcommands := false
+	for _, subcommand := range c.Subcommands {
+		if !subcommand.Hidden {
+			hasVisibleSubcommands = true
+			break
+		}
+	}
+
+	if hasVisibleSubcommands {
 		fmt.Fprintf(&b, "SUBCOMMANDS\n")
-		tw := tabwriter.NewWriter(&b, 0, 2, 2, ' ', 0)
+		tw := tabwriter.NewWriter(&b, 0, 4, 4, ' ', 0)
 		for _, subcommand := range c.Subcommands {
-			fmt.Fprintf(tw, "  %s\t%s\n", subcommand.Name, subcommand.ShortHelp)
+			if !subcommand.Hidden {
+				fmt.Fprintf(tw, "  %s\t%s\n", subcommand.Name, subcommand.ShortHelp)
+			}
 		}
 		tw.Flush()
 		fmt.Fprintf(&b, "\n")
